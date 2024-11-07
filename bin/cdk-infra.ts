@@ -22,6 +22,7 @@ const enableESHardDelete: boolean = app.node.tryGetContext('enableESHardDelete')
 const enableBackup: boolean = app.node.tryGetContext('enableBackup') || false;
 let logLevel: string = app.node.tryGetContext('logLevel') || 'error';
 const fhirVersion: string = app.node.tryGetContext('fhirVersion') || '4.0.1';
+const emailDomain: string = app.node.tryGetContext('emailDomain') || 'verificationemail.com';
 
 if (useHapiValidator) {
     if (!allowedFHIRVersions.includes(fhirVersion)) {
@@ -52,6 +53,7 @@ const stack = new FhirWorksStack(app, `fhir-service-${stage}`, {
     oauthRedirect,
     enableBackup,
     fhirVersion,
+    emailDomain,
     description:
         '(SO0128) - Solution - Primary Template - This template creates all the necessary resources to deploy FHIR Works on AWS; a framework to deploy a FHIR server on AWS.',
 });

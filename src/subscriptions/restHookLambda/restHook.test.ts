@@ -74,8 +74,8 @@ describe('Single tenant: Rest hook notification', () => {
         await expect(
             restHookHandler.sendRestHookNotification(getEvent({ channelPayload: null as any }), allowListPromise),
         ).resolves.toMatchInlineSnapshot(`
-                    Object {
-                      "batchItemFailures": Array [],
+                    {
+                      "batchItemFailures": [],
                     }
                 `);
         expect(axios.post).toHaveBeenCalledWith('https://fake-end-point-1', null, {
@@ -90,8 +90,8 @@ describe('Single tenant: Rest hook notification', () => {
                 allowListPromise,
             ),
         ).resolves.toMatchInlineSnapshot(`
-                    Object {
-                      "batchItemFailures": Array [],
+                    {
+                      "batchItemFailures": [],
                     }
                 `);
         expect(axios.put).toHaveBeenCalledWith('https://fake-end-point-2-something/Patient/1234567', null, {
@@ -109,8 +109,8 @@ describe('Single tenant: Rest hook notification', () => {
                 allowListPromise,
             ),
         ).resolves.toMatchInlineSnapshot(`
-                    Object {
-                      "batchItemFailures": Array [],
+                    {
+                      "batchItemFailures": [],
                     }
                 `);
         expect(axios.put).toHaveBeenCalledWith('https://fake-end-point-2-something/Patient/1234567', null, {
@@ -125,8 +125,8 @@ describe('Single tenant: Rest hook notification', () => {
                 allowListPromise,
             ),
         ).resolves.toMatchInlineSnapshot(`
-                    Object {
-                      "batchItemFailures": Array [],
+                    {
+                      "batchItemFailures": [],
                     }
                 `);
         expect(axios.put).toHaveBeenCalledWith('https://fake-end-point-2-something/Patient/1234567', null, {
@@ -141,9 +141,9 @@ describe('Single tenant: Rest hook notification', () => {
                 allowListPromise,
             ),
         ).resolves.toMatchInlineSnapshot(`
-                    Object {
-                      "batchItemFailures": Array [
-                        Object {
+                    {
+                      "batchItemFailures": [
+                        {
                           "itemIdentifier": "fake-message-id",
                         },
                       ],
@@ -154,9 +154,9 @@ describe('Single tenant: Rest hook notification', () => {
     test('Error thrown when tenantID is passed in', async () => {
         await expect(restHookHandler.sendRestHookNotification(getEvent({ tenantId: 'tenant1' }), allowListPromise))
             .resolves.toMatchInlineSnapshot(`
-                    Object {
-                      "batchItemFailures": Array [
-                        Object {
+                    {
+                      "batchItemFailures": [
+                        {
                           "itemIdentifier": "fake-message-id",
                         },
                       ],

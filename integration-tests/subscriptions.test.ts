@@ -4,7 +4,6 @@
  *
  */
 
-import * as AWS from 'aws-sdk';
 import { AxiosInstance } from 'axios';
 import { v4 } from 'uuid';
 import waitForExpect from 'wait-for-expect';
@@ -21,12 +20,6 @@ const {
     SUBSCRIPTIONS_API_KEY,
     MULTI_TENANCY_ENABLED,
 } = process.env;
-
-if (API_AWS_REGION === undefined) {
-    throw new Error('API_AWS_REGION environment variable is not defined');
-}
-
-AWS.config.update({ region: API_AWS_REGION });
 
 test('empty test placeholder', () => {
     // empty test to avoid the "Your test suite must contain at least one test." error

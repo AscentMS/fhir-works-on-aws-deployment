@@ -12,6 +12,15 @@ test('practitioner role can create new patient', async () => {
     });
 });
 
+test('auditor role can read new patient', async () => {
+    const client = await getFhirClient({ role: 'auditor' });
+    const patientRecord: any = randomPatient();
+    delete patientRecord.id;
+    await expect(client.get('Patient', patientRecord)).resolves.toMatchObject({
+        status: 200
+    });
+});
+
 describe('Negative tests', () => {
     test('invalid token', async () => {
         const client = await getFhirClient({ role: 'practitioner', providedAccessToken: 'Invalid token' });

@@ -32,9 +32,9 @@ import {
     StarPrincipal,
 } from 'aws-cdk-lib/aws-iam';
 import { Alias } from 'aws-cdk-lib/aws-kms';
-import { Runtime, StartingPosition, Tracing } from 'aws-cdk-lib/aws-lambda';
+import { Alias as LambdaAlias, Runtime, StartingPosition, Tracing } from 'aws-cdk-lib/aws-lambda';
 import { DynamoEventSource, SqsEventSource } from 'aws-cdk-lib/aws-lambda-event-sources';
-import { Bucket, BucketAccessControl, BucketEncryption } from 'aws-cdk-lib/aws-s3';
+import { Bucket, BucketAccessControl, BucketEncryption, ObjectOwnership } from 'aws-cdk-lib/aws-s3';
 import { Construct } from 'constructs';
 import { Queue, QueuePolicy } from 'aws-cdk-lib/aws-sqs';
 import { LambdaFunction } from 'aws-cdk-lib/aws-events-targets';
@@ -63,6 +63,7 @@ export interface FhirWorksStackProps extends StackProps {
     logLevel: string;
     oauthRedirect: string;
     fhirVersion: string;
+    emailDomain: string;
 }
 
 export default class FhirWorksStack extends Stack {
@@ -119,6 +120,7 @@ export default class FhirWorksStack extends Stack {
         const fhirLogsBucket = new Bucket(this, 'fhirLogsBucket', {
             accessControl: BucketAccessControl.LOG_DELIVERY_WRITE,
             encryption: BucketEncryption.S3_MANAGED,
+            objectOwnership: ObjectOwnership.BUCKET_OWNER_PREFERRED,
             publicReadAccess: false,
             blockPublicAccess: {
                 blockPublicAcls: true,
@@ -266,7 +268,7 @@ export default class FhirWorksStack extends Stack {
         const subscriptionsResources = new SubscriptionsResources(this, props!.region, this.partition, props!.stage);
 
         // Create Cognito Resources here:
-        const cognitoResources = new CognitoResources(this, this.stackName, props!.oauthRedirect);
+        const cognitoResources = new CognitoResources(this, this.stackName, props!.oauthRedirect, props!.emailDomain);
 
         const apiGatewayLogGroup = new LogGroup(this, 'apiGatewayLogGroup', {
             encryptionKey: kmsResources.logKMSKey,
@@ -334,7 +336,7 @@ export default class FhirWorksStack extends Stack {
         const defaultBulkExportLambdaProps = {
             timeout: Duration.seconds(30),
             memorySize: 192,
-            runtime: Runtime.NODEJS_16_X,
+            runtime: Runtime.NODEJS_20_X,
             description: 'Start the Glue job for bulk export',
             role: bulkExportResources.glueJobRelatedLambdaRole,
             entry: path.join(__dirname, '../bulkExport/index.ts'),
@@ -369,7 +371,7 @@ export default class FhirWorksStack extends Stack {
         const uploadGlueScriptsLambdaFunction = new NodejsFunction(this, 'uploadGlueScriptsLambdaFunction', {
             timeout: Duration.seconds(30),
             memorySize: 192,
-            runtime: Runtime.NODEJS_16_X,
+            runtime: Runtime.NODEJS_20_X,
             role: bulkExportResources.uploadGlueScriptsLambdaRole,
             description: 'Upload glue scripts to s3',
             handler: 'handler',
@@ -406,7 +408,7 @@ export default class FhirWorksStack extends Stack {
         const updateSearchMappingsLambdaFunction = new NodejsFunction(this, 'updateSearchMappingsLambdaFunction', {
             timeout: Duration.seconds(300),
             memorySize: 512,
-            runtime: Runtime.NODEJS_16_X,
+            runtime: Runtime.NODEJS_20_X,
             description: 'Custom resource Lambda to update the search mappings',
             role: new Role(this, 'updateSearchMappingsLambdaRole', {
                 assumedBy: new ServicePrincipal('lambda.amazonaws.com'),
@@ -466,6 +468,7 @@ export default class FhirWorksStack extends Stack {
             serviceToken: updateSearchMappingsLambdaFunction.functionArn,
             properties: {
                 RandomValue: Math.random(), // to force redeployment
+                Timeout: Duration.minutes(10),
             },
         });
 
@@ -492,6 +495,7 @@ export default class FhirWorksStack extends Stack {
             serviceToken: uploadGlueScriptsLambdaFunction.functionArn,
             properties: {
                 RandomValue: this.artifactId,
+                Timeout: Duration.minutes(10),
             },
         });
 
@@ -560,7 +564,7 @@ export default class FhirWorksStack extends Stack {
                     },
                 },
             },
-            runtime: Runtime.NODEJS_16_X,
+            runtime: Runtime.NODEJS_20_X,
             environment: {
                 ...lambdaDefaultEnvVars,
                 EXPORT_STATE_MACHINE_ARN: bulkExportStateMachine.bulkExportStateMachine.stateMachineArn,
@@ -668,8 +672,9 @@ export default class FhirWorksStack extends Stack {
                 }),
             );
         }
-        fhirServerLambda.currentVersion.addAlias(`fhir-server-lambda-${props!.stage}`);
-
+        
+        //fhirServerLambda.addAlias(`fhir-server-lambda-${props!.stage}`);
+        
         const apiGatewayApiKey = apiGatewayRestApi.addApiKey('developerApiKey', {
             description: 'Key for developer access to the FHIR Api',
             apiKeyName: `developer-key-${props!.stage}`,
@@ -747,7 +752,7 @@ export default class FhirWorksStack extends Stack {
 
         const ddbToEsLambda = new NodejsFunction(this, 'ddbToEs', {
             timeout: Duration.seconds(300),
-            runtime: Runtime.NODEJS_16_X,
+            runtime: Runtime.NODEJS_20_X,
             description: 'Write DDB changes from `resource` table to ElasticSearch service',
             handler: 'handler',
             entry: path.join(__dirname, '../ddbToEsLambda/index.ts'),
@@ -829,7 +834,7 @@ export default class FhirWorksStack extends Stack {
 
         const subscriptionReaper = new NodejsFunction(this, 'subscriptionReaper', {
             timeout: Duration.seconds(30),
-            runtime: Runtime.NODEJS_16_X,
+            runtime: Runtime.NODEJS_20_X,
             description: 'Scheduled Lambda to remove expired Subscriptions',
             role: new Role(this, 'subscriptionReaperRole', {
                 assumedBy: new ServicePrincipal('lambda.amazonaws.com'),
@@ -913,7 +918,7 @@ export default class FhirWorksStack extends Stack {
             timeout: Duration.seconds(20),
             memorySize: isDev ? 512 : 1024,
             reservedConcurrentExecutions: isDev ? 10 : 200,
-            runtime: Runtime.NODEJS_16_X,
+            runtime: Runtime.NODEJS_20_X,
             description: 'Match ddb events against active Subscriptions and emit notifications',
             role: new Role(this, 'subscriptionsMatcherLambdaRole', {
                 assumedBy: new ServicePrincipal('lambda.amazonaws.com'),
@@ -1014,7 +1019,7 @@ export default class FhirWorksStack extends Stack {
         // eslint-disable-next-line no-new
         new NodejsFunction(this, 'subscriptionsRestHook', {
             timeout: Duration.seconds(10),
-            runtime: Runtime.NODEJS_16_X,
+            runtime: Runtime.NODEJS_20_X,
             description: 'Send rest-hook notification for subscription',
             role: subscriptionsResources.restHookLambdaRole,
             handler: 'handler',

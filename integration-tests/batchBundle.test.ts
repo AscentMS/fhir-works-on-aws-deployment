@@ -4,7 +4,7 @@ import { getFhirClient } from './utils';
 jest.setTimeout(60 * 1000);
 
 const generateGetRequests = (id: string, amount: number) => {
-    const requests = [];
+    const requests: any[] = [];
     for (let i = 0; i < amount; i += 1) {
         requests.push({
             request: {
@@ -17,7 +17,7 @@ const generateGetRequests = (id: string, amount: number) => {
 };
 
 const generateGetResponses = (id: string, amount: number) => {
-    const responses = [];
+    const responses: any[] = [];
     for (let i = 0; i < amount; i += 1) {
         responses.push({
             response: {

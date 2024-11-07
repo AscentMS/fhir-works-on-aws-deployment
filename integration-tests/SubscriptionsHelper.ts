@@ -3,8 +3,8 @@
  *  SPDX-License-Identifier: Apache-2.0
  *
  */
-import * as AWS from 'aws-sdk';
-import { DynamoDB } from 'aws-sdk';
+import { DynamoDB } from '@aws-sdk/client-dynamodb';
+import { unmarshall } from '@aws-sdk/util-dynamodb';
 
 export interface SubscriptionNotification {
     httpMethod: string;
@@ -21,7 +21,7 @@ export class SubscriptionsHelper {
 
     constructor(notificationsTableName: string) {
         this.notificationsTableName = notificationsTableName;
-        this.dynamodbClient = new AWS.DynamoDB();
+        this.dynamodbClient = new DynamoDB();
     }
 
     /**
@@ -36,12 +36,11 @@ export class SubscriptionsHelper {
                 ExpressionAttributeNames: { '#path': 'path' },
                 ExpressionAttributeValues: { ':pathValue': { S: path } },
             })
-            .promise();
 
         if (Items === undefined) {
             return [];
         }
 
-        return Items.map((item) => AWS.DynamoDB.Converter.unmarshall(item) as SubscriptionNotification);
+        return Items.map((item) => unmarshall(item) as SubscriptionNotification);
     }
 }

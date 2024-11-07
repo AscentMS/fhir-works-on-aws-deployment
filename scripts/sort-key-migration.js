@@ -20,23 +20,17 @@
  * OLD_TABLE=resource-dev NEW_TABLE=resource-db-dev REGION=us-west-2 ACCESS_KEY=<> SECRET_KEY=<> node scripts/sort-key-migration.js
  */
 
-const AWS = require('aws-sdk');
+import { DynamoDB } from '@aws-sdk/client-dynamodb';
+import { marshall, unmarshall } from '@aws-sdk/util-dynamodb';
 
-AWS.config.update({
-    region: process.env.REGION,
-    accessKeyId: process.env.ACCESS_KEY,
-    secretAccessKey: process.env.SECRET_KEY,
-});
+const DynamoDb = new DynamoDB();
 
-const DynamoDb = new AWS.DynamoDB();
-
-const DynamoDBConverter = AWS.DynamoDB.Converter;
 
 const OLD_RESOURCE_TABLE = process.env.OLD_TABLE || '';
 const NEW_RESOURCE_TABLE = process.env.NEW_TABLE || '';
 
 function createPutRequest(resource) {
-    return { PutRequest: { Item: DynamoDBConverter.marshall(resource) } };
+    return { PutRequest: { Item: marshall(resource) } };
 }
 function createBatchWriteRequest(writeRequests) {
     return { RequestItems: { [NEW_RESOURCE_TABLE]: writeRequests } };
@@ -65,7 +59,7 @@ function createBatchWriteRequest(writeRequests) {
 
         for (let i = 0; i < scanResult.Items.length; i += 1) {
             const resourceJson = scanResult.Items[i];
-            const resource = DynamoDBConverter.unmarshall(resourceJson);
+            const resource = unmarshall(resourceJson);
             resource.vid = parseInt(resource.vid, 10) || resource.vid;
             batchWrites.push(createPutRequest(resource));
             if (batchWrites.length === 25) {

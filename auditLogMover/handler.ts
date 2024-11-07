@@ -2,9 +2,8 @@
  *  Copyright Amazon.com, Inc. or its affiliates. All Rights Reserved.
  *  SPDX-License-Identifier: Apache-2.0
  */
-
+import { CloudWatchLogs } from '@aws-sdk/client-cloudwatch-logs';
 import moment from 'moment';
-import AWS from 'aws-sdk';
 import { LogStreamType, AuditLogMoverHelper } from './auditLogMoverHelper';
 
 const CLOUDWATCH_EXECUTION_LOG_GROUP = process.env.CLOUDWATCH_EXECUTION_LOG_GROUP || '';
@@ -22,7 +21,7 @@ The stepFunction work flow is described below
 exports.exportCloudwatchLogs = async () => {
     // CWLogs needs to be initialized inside the function for 'aws-sdk-mock' to mock this object correctly during
     // unit testing
-    const cloudwatchLogs = new AWS.CloudWatchLogs();
+    const cloudwatchLogs = new CloudWatchLogs();
     const beginTimeMoment = moment.utc().subtract(NUMBER_OF_DAYS_KEEP_CWLOGS_BEFORE_ARCHIVING, 'days').startOf('day');
     const endTimeMoment = beginTimeMoment.endOf('day');
 
@@ -44,7 +43,7 @@ exports.exportCloudwatchLogs = async () => {
             taskName: `audit-log-export-${dateStringOfDayExported}`,
         };
         daysExported.push(dateStringOfDayExported);
-        exportTaskPromises.push(cloudwatchLogs.createExportTask(params).promise());
+        exportTaskPromises.push(cloudwatchLogs.createExportTask(params));
     });
 
     try {
@@ -65,7 +64,7 @@ exports.exportCloudwatchLogs = async () => {
 exports.deleteCloudwatchLogs = async (event: any) => {
     // CWLogs needs to be initialized inside the function for 'aws-sdk-mock' to mock this object correctly during
     // unit testing
-    const cloudwatchLogs = new AWS.CloudWatchLogs();
+    const cloudwatchLogs = new CloudWatchLogs();
     const logStreams: LogStreamType[] = await AuditLogMoverHelper.getAllLogStreams(CLOUDWATCH_EXECUTION_LOG_GROUP);
     // In the step function, 'deleteCloudwatchLogs' gets a list of daysExported from 'exportCloudwatchLogs'
     const eachDayInTimeFrame = event.daysExported;
@@ -98,7 +97,7 @@ exports.deleteCloudwatchLogs = async (event: any) => {
             logGroupName: CLOUDWATCH_EXECUTION_LOG_GROUP,
             logStreamName: logStream.logStreamName,
         };
-        deleteLogstreamPromises.push(cloudwatchLogs.deleteLogStream(params).promise());
+        deleteLogstreamPromises.push(cloudwatchLogs.deleteLogStream(params));
     });
 
     try {

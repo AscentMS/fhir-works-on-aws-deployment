@@ -40,7 +40,7 @@ provider:
   name: aws
   region: us-west-2
   stage: dev
-  runtime: nodejs14.x
+  runtime: nodejs20.x
   architecture: x86_64
   memorySize: 512
   logRetentionInDays: 3653 # 10 years
@@ -59,7 +59,7 @@ provider:
       !Join ['', ['https://', !Ref UserPoolDomain, !Sub '.auth.${AWS::Region}.amazoncognito.com/oauth2']]
     EXPORT_RESULTS_BUCKET: !Ref BulkExportResultsBucket
     EXPORT_RESULTS_SIGNER_ROLE_ARN: !GetAtt ExportResultsSignerRole.Arn
-    CUSTOM_USER_AGENT: 'AwsSolution/SO0128/GH-v5.1.0'
+    CUSTOM_USER_AGENT: 'AwsSolution/SO0128/GH-v5.0.0'
     VALIDATOR_LAMBDA_ALIAS: !If
       - isUsingHapiValidator
       - !ImportValue 'fhir-service-validator-lambda-${self:custom.stage}'
@@ -118,7 +118,7 @@ functions:
 
   ddbToEs:
     timeout: 300
-    runtime: nodejs14.x
+    runtime: nodejs20.x
     description: 'Write DDB changes from `resource` table to ElasticSearch service'
     role: DdbToEsLambdaRole
     handler: ddbToEsLambda/index.handler
@@ -136,7 +136,7 @@ functions:
     timeout: 20
     memorySize: !If [isDev, 512, 1024]
     reservedConcurrency: !If [isDev, 10, 200]
-    runtime: nodejs14.x
+    runtime: nodejs20.x
     description: 'Match ddb events against active Subscriptions and emit notifications'
     role: SubscriptionsMatcherLambdaRole
     handler: src/subscriptions/matcherLambda/index.handler
@@ -154,7 +154,7 @@ functions:
   startExportJob:
     timeout: 30
     memorySize: 192
-    runtime: nodejs14.x
+    runtime: nodejs20.x
     description: 'Start the Glue job for bulk export'
     role: GlueJobRelatedLambdaRole
     handler: bulkExport/index.startExportJobHandler
@@ -164,7 +164,7 @@ functions:
   stopExportJob:
     timeout: 30
     memorySize: 192
-    runtime: nodejs14.x
+    runtime: nodejs20.x
     description: 'Stop the Glue job for bulk export'
     role: GlueJobRelatedLambdaRole
     handler: bulkExport/index.stopExportJobHandler
@@ -174,7 +174,7 @@ functions:
   getJobStatus:
     timeout: 30
     memorySize: 192
-    runtime: nodejs14.x
+    runtime: nodejs20.x
     description: 'Get the status of a Glue job run for bulk export'
     role: GlueJobRelatedLambdaRole
     handler: bulkExport/index.getJobStatusHandler
@@ -184,7 +184,7 @@ functions:
   updateStatus:
     timeout: 30
     memorySize: 192
-    runtime: nodejs14.x
+    runtime: nodejs20.x
     description: 'Update the status of a bulk export job'
     role: UpdateStatusLambdaRole
     handler: bulkExport/index.updateStatusStatusHandler
@@ -192,7 +192,7 @@ functions:
   uploadGlueScripts:
     timeout: 30
     memorySize: 192
-    runtime: nodejs14.x
+    runtime: nodejs20.x
     description: 'Upload glue scripts to s3'
     role: UploadGlueScriptsLambdaRole
     handler: bulkExport/uploadGlueScriptsToS3.handler
@@ -203,7 +203,7 @@ functions:
   updateSearchMappings:
     timeout: 300
     memorySize: 512
-    runtime: nodejs14.x
+    runtime: nodejs20.x
     description: 'Custom resource Lambda to update the search mappings'
     role: UpdateSearchMappingsLambdaRole
     handler: updateSearchMappings/index.handler
@@ -214,7 +214,7 @@ functions:
     
   subscriptionReaper:
     timeout: 30
-    runtime: nodejs14.x
+    runtime: nodejs20.x
     description: 'Scheduled Lambda to remove expired Subscriptions'
     role: SubscriptionReaperRole
     handler: src/subscriptions/reaperLambda/index.handler
@@ -225,7 +225,7 @@ functions:
 
   subscriptionsRestHook:
     timeout: 10
-    runtime: nodejs14.x
+    runtime: nodejs20.x
     description: 'Send rest-hook notification for subscription'
     role: RestHookLambdaRole
     handler: src/subscriptions/restHookLambda/index.handler

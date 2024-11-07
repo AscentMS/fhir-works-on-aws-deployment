@@ -2,9 +2,8 @@
  *  Copyright Amazon.com, Inc. or its affiliates. All Rights Reserved.
  *  SPDX-License-Identifier: Apache-2.0
  */
-
+import { S3 } from '@aws-sdk/client-s3';
 import * as fs from 'fs';
-import * as AWS from 'aws-sdk';
 import axios from 'axios';
 
 const sendCfnResponse = async (event: any, status: 'SUCCESS' | 'FAILED', error?: Error) => {
@@ -32,7 +31,7 @@ exports.handler = async (event: any) => {
         if (process.env.GLUE_SCRIPTS_BUCKET === undefined) {
             throw new Error('Missing env variable GLUE_SCRIPTS_BUCKET');
         }
-        const s3 = new AWS.S3();
+        const s3 = new S3();
 
         const filenameAndPath = [
             { filename: 'export-script.py', path: 'bulkExport/glueScripts/export-script.py' },
@@ -60,7 +59,6 @@ exports.handler = async (event: any) => {
                             Body: fs.readFileSync(entry.path),
                             Key: entry.filename,
                         })
-                        .promise();
                 }),
             );
             console.log(`upload successful`);
@@ -75,7 +73,6 @@ exports.handler = async (event: any) => {
                             Bucket: process.env.GLUE_SCRIPTS_BUCKET!,
                             Key: entry.filename,
                         })
-                        .promise();
                 }),
             );
             await sendCfnResponse(event, 'SUCCESS');

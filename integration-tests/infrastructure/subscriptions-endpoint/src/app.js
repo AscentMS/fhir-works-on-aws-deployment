@@ -1,6 +1,5 @@
-// eslint-disable-next-line import/no-extraneous-dependencies
-const AWS = require('aws-sdk');
-
+import { DynamoDB } from '@aws-sdk/client-dynamodb';
+import { marshall } from '@aws-sdk/util-dynamodb';
 /**
  *
  * Event doc: https://docs.aws.amazon.com/apigateway/latest/developerguide/set-up-lambda-proxy-integrations.html#api-gateway-simple-proxy-for-lambda-input-format
@@ -13,7 +12,7 @@ const AWS = require('aws-sdk');
  * @returns {Object} object - API Gateway Lambda Proxy Output Format
  *
  */
-const dynamoDb = new AWS.DynamoDB();
+const dynamoDb = new DynamoDB();
 
 const { TABLE_NAME } = process.env;
 
@@ -21,7 +20,7 @@ if (TABLE_NAME === undefined) {
     throw new Error(`Required env variable TABLE_NAME is not defined`);
 }
 
-exports.lambdaHandler = async (event) => {
+export async function lambdaHandler(event) {
     const { path, httpMethod, headers, body } = event;
 
     const item = {
@@ -37,7 +36,7 @@ exports.lambdaHandler = async (event) => {
     await dynamoDb
         .putItem({
             TableName: TABLE_NAME,
-            Item: AWS.DynamoDB.Converter.marshall(item),
+            Item: marshall(item),
         })
         .promise();
 
@@ -47,4 +46,4 @@ exports.lambdaHandler = async (event) => {
             message: 'ok',
         }),
     };
-};
+}

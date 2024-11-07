@@ -32,6 +32,7 @@ module.exports = {
         'import/no-unresolved': ['error', { ignore: ['aws-lambda'] }],
         'no-shadow': 'off', // replaced by ts-eslint rule below
         '@typescript-eslint/no-shadow': 'error',
+        'end-of-line': 'auto'
     },
     settings: {
         'import/resolver': {

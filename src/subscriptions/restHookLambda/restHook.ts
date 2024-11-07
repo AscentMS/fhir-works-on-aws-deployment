@@ -104,6 +104,7 @@ export default class RestHookHandler {
         logger.info(`Notifications sent: ${results.length - failures.length}`);
         logger.info(`Failed notifications: ${failures.length}`);
 
+        console.log('batchItemFailures', failures)
         return {
             batchItemFailures: failures,
         };

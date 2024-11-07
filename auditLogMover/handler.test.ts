@@ -3,24 +3,29 @@
  *  SPDX-License-Identifier: Apache-2.0
  */
 
+import { AwsStub, mockClient } from 'aws-sdk-client-mock';
+import 'aws-sdk-client-mock-jest';
 // eslint-disable-next-line import/no-extraneous-dependencies
-import AWS from 'aws-sdk';
-// eslint-disable-next-line import/no-extraneous-dependencies
-import sinon from 'sinon';
 import moment from 'moment';
-// eslint-disable-next-line import/no-extraneous-dependencies
-import AWSMock from 'aws-sdk-mock';
+
 // @ts-ignore
 import { exportCloudwatchLogs, deleteCloudwatchLogs } from './handler';
+import { ListObjectsV2Command, S3Client } from '@aws-sdk/client-s3';
+import { CloudWatchClient, CloudWatchClientResolvedConfig, PutMetricDataCommand, ServiceInputTypes, ServiceOutputTypes } from '@aws-sdk/client-cloudwatch';
+import { CloudWatchLogsClient, CreateExportTaskCommand, DeleteLogStreamCommand, DescribeLogStreamsCommand } from '@aws-sdk/client-cloudwatch-logs';
 
-AWSMock.setSDKInstance(AWS);
-
-let putMetricDataSpy = sinon.spy();
-function checkEmitMetrics(metricPrefix: string, isSuccessful: boolean) {
-    expect(putMetricDataSpy.calledTwice).toBeTruthy();
-    const actualPutMetricData = [];
-    actualPutMetricData.push(putMetricDataSpy.getCall(0).args[0]);
-    actualPutMetricData.push(putMetricDataSpy.getCall(1).args[0]);
+function checkEmitMetrics(
+    putMetricDataSpy: AwsStub<ServiceInputTypes, ServiceOutputTypes, CloudWatchClientResolvedConfig>,
+    metricPrefix: string,
+    isSuccessful: boolean
+) {
+    //expect(putMetricDataSpy.calledTwice).toBeTruthy();
+    expect(putMetricDataSpy.calls()).toHaveLength(2);
+    const actualPutMetricData: any[] = [];
+    //actualPutMetricData.push(putMetricDataSpy.getCall(0).args[0]);
+    //actualPutMetricData.push(putMetricDataSpy.getCall(1).args[0]);
+    actualPutMetricData.push(putMetricDataSpy.call(0).args[0].input); // putMetricDataSpy.getCall(0).args[0]);
+    actualPutMetricData.push(putMetricDataSpy.call(1).args[0].input); //putMetricDataSpy.getCall(1).args[0]);
 
     actualPutMetricData.sort((metricA: any, metricB: any) => {
         return metricA.MetricData[0].MetricName.localeCompare(metricB.MetricData[0].MetricName);
@@ -59,32 +64,48 @@ function checkEmitMetrics(metricPrefix: string, isSuccessful: boolean) {
 }
 
 describe('exportCloudwatchLogs', () => {
-    let createExportTaskSpy = sinon.spy();
-    afterEach(() => {
-        createExportTaskSpy = sinon.spy();
-        putMetricDataSpy = sinon.spy();
-        AWSMock.restore();
-    });
+    const s3Mock = mockClient(S3Client);
+    const cloudwatchMock = mockClient(CloudWatchClient);
+    const cloudwatchLogsMock = mockClient(CloudWatchLogsClient);
 
+    afterAll(() => {
+        //s3Mock.restore();
+        //cloudwatchMock.restore();
+        //cloudwatchLogsMock.restore();
+    });
+    
     beforeEach(() => {
-        AWSMock.mock('CloudWatch', 'putMetricData', (params: any, callback: Function) => {
-            putMetricDataSpy(params);
-            callback(null, {});
-        });
+        s3Mock.reset();
+        cloudwatchMock.reset();
+        cloudwatchLogsMock.reset();
+
+        cloudwatchMock
+            .on(PutMetricDataCommand)
+            .resolves(
+                {
+                    $metadata: {
+                        httpStatusCode: 200,
+                    }
+                }
+            );
     });
 
     test('create export task succeed. exportCloudwatchLogs-Succeeded emit 1 and exportCloudwatchLogs-Failed emit 0', async () => {
         // BUILD
-        AWSMock.mock('CloudWatchLogs', 'createExportTask', (params: any, callback: Function) => {
-            createExportTaskSpy(params);
-            callback(null, {});
-        });
+        cloudwatchLogsMock
+            .on(CreateExportTaskCommand)
+            .resolves({
+                $metadata: {
+                    httpStatusCode: 200,
+                }
+            });
 
         // OPERATE
         await exportCloudwatchLogs();
 
         // CHECK
-        expect(createExportTaskSpy.calledOnce).toBeTruthy();
+        console.log('Calls:', cloudwatchMock.calls());
+        expect(cloudwatchMock).toHaveReceivedCommandTimes(PutMetricDataCommand, 2);
 
         const sevenDaysAgo = moment.utc().subtract(7, 'days').format('YYYY-MM-DD');
 
@@ -93,14 +114,18 @@ describe('exportCloudwatchLogs', () => {
             taskName: `audit-log-export-${sevenDaysAgo}`,
         };
 
-        const actualExportParam = createExportTaskSpy.getCall(0).args[0];
+        const actualExportParam = cloudwatchLogsMock.call(0).args[0].input; //  createExportTaskSpy.getCall(0).args[0];
         expect(actualExportParam).toMatchObject(expectedCreateExportParams);
 
-        checkEmitMetrics('exportCloudwatchLogs', true);
+        checkEmitMetrics(cloudwatchMock, 'exportCloudwatchLogs', true);
     });
 
     test('create export task failed. exportCloudwatchLogs-Succeeded emit 0 and exportCloudwatchLogs-Failed emit 1', async () => {
         // BUILD
+        cloudwatchLogsMock
+            .on(CreateExportTaskCommand)
+            .rejects(new Error('Failed to create export task'));
+        /*
         AWSMock.mock('CloudWatchLogs', 'createExportTask', (params: any, callback: Function) => {
             createExportTaskSpy(params);
             const error = {
@@ -108,7 +133,8 @@ describe('exportCloudwatchLogs', () => {
             };
             callback(error, {});
         });
-
+        */
+        
         try {
             // OPERATE
             expect.hasAssertions();
@@ -116,7 +142,8 @@ describe('exportCloudwatchLogs', () => {
         } catch (e) {
             // CHECK
             expect((e as any).message).toEqual('Failed to kick off all export tasks');
-            expect(createExportTaskSpy.calledOnce).toBeTruthy();
+            expect(cloudwatchLogsMock).toHaveReceivedCommandTimes(CreateExportTaskCommand, 1);
+            //expect(createExportTaskSpy.calledOnce).toBeTruthy();
 
             const sevenDaysAgo = moment.utc().subtract(7, 'days').format('YYYY-MM-DD');
 
@@ -125,27 +152,72 @@ describe('exportCloudwatchLogs', () => {
                 taskName: `audit-log-export-${sevenDaysAgo}`,
             };
 
-            const actualExportParam = createExportTaskSpy.getCall(0).args[0];
+            const actualExportParam = cloudwatchLogsMock.call(0).args[0].input; //createExportTaskSpy.getCall(0).args[0];
             expect(actualExportParam).toMatchObject(params);
 
-            expect(putMetricDataSpy.calledTwice).toBeTruthy();
-            const actualPutMetricData = [];
-            actualPutMetricData.push(putMetricDataSpy.getCall(0).args[0]);
-            actualPutMetricData.push(putMetricDataSpy.getCall(1).args[0]);
+            //expect(putMetricDataSpy.calledTwice).toBeTruthy();
+            expect(cloudwatchMock).toHaveReceivedCommandTimes(PutMetricDataCommand, 2);
 
-            checkEmitMetrics('exportCloudwatchLogs', false);
+            const actualPutMetricData: any[] = [];
+            actualPutMetricData.push(cloudwatchMock.call(0).args[0].input); // putMetricDataSpy.getCall(0).args[0]);
+            actualPutMetricData.push(cloudwatchMock.call(1).args[0].input); // putMetricDataSpy.getCall(1).args[0]);
+
+            checkEmitMetrics(cloudwatchMock, 'exportCloudwatchLogs', false);
         }
     });
 });
 
 describe('deleteCloudwatchLogs', () => {
     const logStreamName = '1b80d2ffe808890e47f94dc4adc5617a';
-    afterEach(() => {
-        putMetricDataSpy = sinon.spy();
-        AWSMock.restore();
-    });
-
+    const s3Mock = mockClient(S3Client);
+    const cloudwatchMock = mockClient(CloudWatchClient);
+    const cloudwatchLogsMock = mockClient(CloudWatchLogsClient);
+    
     beforeEach(() => {
+        s3Mock.reset();
+        cloudwatchMock.reset();
+        cloudwatchLogsMock.reset();
+
+        cloudwatchLogsMock
+            .on(DeleteLogStreamCommand)
+            .resolves(
+                {
+                    $metadata: {
+                        httpStatusCode: 200,
+                    }
+                }
+            );
+        cloudwatchLogsMock
+            .on(DescribeLogStreamsCommand)
+            .resolves(
+                {
+                    $metadata: {
+                        httpStatusCode: 200,
+                    },
+                    logStreams: [
+                        {
+                            logStreamName: logStreamName,
+                            firstEventTimestamp: moment('2020-07-04').add(1, 'minutes').valueOf(),
+                            lastEventTimestamp: moment('2020-07-04').add(2, 'minutes').valueOf(),
+                        },
+                    ],
+                }
+            );
+        cloudwatchMock
+            .on(PutMetricDataCommand)
+            .resolves(
+                {
+                    $metadata: {
+                        httpStatusCode: 200,
+                    }
+                }
+            );
+
+        /*
+        AWSMock.mock('CloudWatchLogs', 'deleteLogStream', (params: any, callback: Function) => {
+            callback(null, {});
+        });
+
         AWSMock.mock('CloudWatch', 'putMetricData', (params: any, callback: Function) => {
             putMetricDataSpy(params);
             callback(null, {});
@@ -162,10 +234,36 @@ describe('deleteCloudwatchLogs', () => {
                 ],
             });
         });
+        */
     });
 
     test('delete cloudwatch logs succeed. deleteCloudwatchLogs-Succeeded emit 1 and deleteCloudwatchLogs-Failed emit 0', async () => {
         // BUILD
+        s3Mock
+            .on(ListObjectsV2Command)
+            .resolvesOnce(
+                {
+                    $metadata: {
+                        httpStatusCode: 200,
+                    },
+                    CommonPrefixes: [
+                        {
+                            Prefix: '2020-07-04/',
+                        },
+                    ],
+                }
+            );
+
+        cloudwatchLogsMock
+            .on(DeleteLogStreamCommand)
+            .resolvesOnce(
+                {
+                    $metadata: {
+                        httpStatusCode: 200,
+                    }
+                }
+            );
+        /*
         AWSMock.mock('S3', 'listObjectsV2', (params: any, callback: Function) => {
             callback(null, {
                 CommonPrefixes: [
@@ -181,6 +279,7 @@ describe('deleteCloudwatchLogs', () => {
             deleteLogStreamsSpy(params);
             callback(null, {});
         });
+        */
 
         // OPERATE
         await deleteCloudwatchLogs({
@@ -188,15 +287,34 @@ describe('deleteCloudwatchLogs', () => {
         });
 
         // CHECK
-        const actualLogstreamDeleted = deleteLogStreamsSpy.getCall(0).args[0];
-        expect(deleteLogStreamsSpy.calledOnce).toBeTruthy();
+        //expect(deleteLogStreamsSpy.calledOnce).toBeTruthy();
+        expect(cloudwatchLogsMock).toHaveReceivedCommandTimes(DeleteLogStreamCommand, 1);
+        expect(cloudwatchLogsMock).toHaveReceivedCommandTimes(DescribeLogStreamsCommand, 1);
+        console.log('Calls', cloudwatchLogsMock.calls());
+        const actualLogstreamDeleted = cloudwatchLogsMock.commandCalls(DeleteLogStreamCommand)[0].args[0].input; //deleteLogStreamsSpy.getCall(0).args[0];
         expect(actualLogstreamDeleted).toMatchObject({ logStreamName });
 
-        checkEmitMetrics('deleteCloudwatchLogs', true);
+        checkEmitMetrics(cloudwatchMock, 'deleteCloudwatchLogs', true);
     });
 
     test('delete cloudwatch logs failed. deleteCloudwatchLogs-Succeeded emit 0 and deleteCloudwatchLogs-Failed emit 1', async () => {
         // BUILD
+        s3Mock
+            .on(ListObjectsV2Command)
+            .resolvesOnce(
+                {
+                    $metadata: {
+                        httpStatusCode: 200,
+                    },
+                    CommonPrefixes: [
+                        {
+                            Prefix: '2020-06-01/',
+                        },
+                    ]
+                }
+            );
+
+        /*
         AWSMock.mock('S3', 'listObjectsV2', (params: any, callback: Function) => {
             callback(null, {
                 CommonPrefixes: [
@@ -206,6 +324,8 @@ describe('deleteCloudwatchLogs', () => {
                 ],
             });
         });
+        */
+        
         try {
             // OPERATE
             await deleteCloudwatchLogs({
@@ -216,7 +336,7 @@ describe('deleteCloudwatchLogs', () => {
             expect((e as any).message).toEqual(
                 'Failed to delete Cloudwatch Logs because some Cloudwatch Logs have not been exported to S3',
             );
-            checkEmitMetrics('deleteCloudwatchLogs', false);
+            checkEmitMetrics(cloudwatchMock, 'deleteCloudwatchLogs', false);
         }
     });
 });

@@ -3,9 +3,10 @@
  *  SPDX-License-Identifier: Apache-2.0
  */
 
-import AWS from 'aws-sdk';
 import moment from 'moment';
-import { ListObjectsV2Output } from 'aws-sdk/clients/s3';
+import { ListObjectsV2Output, S3 } from '@aws-sdk/client-s3';
+import { CloudWatch } from '@aws-sdk/client-cloudwatch';
+import { CloudWatchLogs } from '@aws-sdk/client-cloudwatch-logs';
 
 export interface LogStreamType {
     logStreamName: string;
@@ -45,16 +46,16 @@ export class AuditLogMoverHelper {
     }
 
     private static async getDirectoriesInS3GivenPrefixes(prefixes: string[], auditLogBucket: string) {
-        const S3 = new AWS.S3();
+        const s3 = new S3();
         const listS3Responses: ListObjectsV2Output[] = await Promise.all(
-            prefixes.map((prefix) => {
+            prefixes.map(async(prefix) => {
                 const s3params: any = {
                     Bucket: auditLogBucket,
                     MaxKeys: 31,
                     Delimiter: '/',
                     Prefix: prefix,
                 };
-                return S3.listObjectsV2(s3params).promise();
+                return await s3.listObjectsV2(s3params);
             }),
         );
 
@@ -88,9 +89,9 @@ export class AuditLogMoverHelper {
             if (nextToken) {
                 params.nextToken = nextToken;
             }
-            const cloudwatchLogs = new AWS.CloudWatchLogs();
+            const cloudwatchLogs = new CloudWatchLogs();
             // eslint-disable-next-line no-await-in-loop
-            const describeResponse = await cloudwatchLogs.describeLogStreams(params).promise();
+            const describeResponse = await cloudwatchLogs.describeLogStreams(params);
             if (describeResponse.logStreams && describeResponse.logStreams.length > 0) {
                 describeResponse.logStreams.forEach((logStream: any) => {
                     logStreams.push({
@@ -149,7 +150,7 @@ export class AuditLogMoverHelper {
             ],
             Namespace: 'Audit-Log-Mover',
         };
-        const cloudwatch = new AWS.CloudWatch();
-        return cloudwatch.putMetricData(params).promise();
+        const cloudwatch = new CloudWatch();
+        return await cloudwatch.putMetricData(params);
     }
 }

@@ -93,7 +93,7 @@ export default class AlarmsResource {
         const ddbToEsDLQDepthAlarm = new Alarm(scope, 'ddbToEsDLQDepthAlarm', {
             alarmDescription: 'Alarm if queue depth increases to >= 1 messages',
             alarmName: `FhirSolution.${stage}.High.DDBToESDLQDepthAlarm`,
-            actionsEnabled: false,
+            actionsEnabled: true,
             comparisonOperator: ComparisonOperator.GREATER_THAN_THRESHOLD,
             evaluationPeriods: 1,
             metric: new Metric({
@@ -156,7 +156,7 @@ export default class AlarmsResource {
         const apiGateway5XXErrorAlarm = new Alarm(scope, 'apiGateway5XXErrorAlarm', {
             alarmDescription: 'Alarm when API Gateway has more than 1 5xx errors; 3 times',
             alarmName: `FhirSolution.${stage}.High.ApiGateway5XXErrorAlarm`,
-            actionsEnabled: false,
+            actionsEnabled: true,
             comparisonOperator: ComparisonOperator.GREATER_THAN_OR_EQUAL_TO_THRESHOLD,
             evaluationPeriods: 5,
             datapointsToAlarm: 3,
@@ -179,7 +179,7 @@ export default class AlarmsResource {
         const apiGateway4XXErrorAlarm = new Alarm(scope, 'apiGateway4XXErrorAlarm', {
             alarmDescription: 'Alarm when API Gateway has more 1 4xx errors; 3 times',
             alarmName: `FhirSolution.${stage}.Low.ApiGateway4XXErrorAlarm`,
-            actionsEnabled: false,
+            actionsEnabled: true,
             comparisonOperator: ComparisonOperator.GREATER_THAN_OR_EQUAL_TO_THRESHOLD,
             evaluationPeriods: 5,
             datapointsToAlarm: 3,
@@ -202,7 +202,7 @@ export default class AlarmsResource {
         const apiGatewayLatencyAlarm = new Alarm(scope, 'apiGatewayLatencyAlarm', {
             alarmDescription: 'Alarm when API Gatway average latency is more than 3s; 2 times',
             alarmName: `FhirSolution.${stage}.Low.ApiGatewayLatencyAlarm`,
-            actionsEnabled: false,
+            actionsEnabled: true,
             comparisonOperator: ComparisonOperator.GREATER_THAN_OR_EQUAL_TO_THRESHOLD,
             evaluationPeriods: 5,
             datapointsToAlarm: 2,

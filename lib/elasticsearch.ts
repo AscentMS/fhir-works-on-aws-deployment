@@ -288,17 +288,17 @@ export default class ElasticSearchResources {
             ebs: {
                 enabled: true,
                 volumeType: EbsDeviceVolumeType.GP2,
-                volumeSize: isDev ? 10 : 73,
+                volumeSize: isDev ? 10 : 75,
             },
             version: EngineVersion.ELASTICSEARCH_7_10,
             zoneAwareness: {
-                enabled: !isDev,
+                enabled: false, //!isDev,
             },
             enableVersionUpgrade: true,
             capacity: {
-                masterNodes: isDev ? undefined : 3,
-                masterNodeInstanceType: isDev ? undefined : regionMappings.findInMap(region, 'smallEc2'),
-                dataNodes: isDev ? 1 : 4,
+                masterNodes: isDev ? undefined : undefined, //3,
+                masterNodeInstanceType: isDev ? undefined : undefined, //regionMappings.findInMap(region, 'smallEc2'),
+                dataNodes: isDev ? 1 : 1,
                 dataNodeInstanceType: regionMappings.findInMap(region, isDev ? 'smallEc2' : 'largeEc2'),
             },
             encryptionAtRest: {

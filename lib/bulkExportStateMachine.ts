@@ -10,6 +10,7 @@ import {
     Parallel,
     StateMachine,
     LogLevel,
+    DefinitionBody,
 } from 'aws-cdk-lib/aws-stepfunctions';
 import { LambdaInvoke } from 'aws-cdk-lib/aws-stepfunctions-tasks';
 import { Construct } from 'constructs';
@@ -100,7 +101,7 @@ export default class BulkExportStateMachine {
 
         this.bulkExportStateMachine = new StateMachine(scope, 'bulkExportStateMachine', {
             stateMachineName: `BulkExportStateMachine-${stage}`,
-            definition: parallelHelper,
+            definitionBody: DefinitionBody.fromChainable(parallelHelper),
             tracingEnabled: true,
             logs: {
                 level: LogLevel.ALL,

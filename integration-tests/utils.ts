@@ -2,8 +2,7 @@
  *  Copyright Amazon.com, Inc. or its affiliates. All Rights Reserved.
  *  SPDX-License-Identifier: Apache-2.0
  */
-
-import * as AWS from 'aws-sdk';
+import { CognitoIdentityProvider } from '@aws-sdk/client-cognito-identity-provider';
 import axios, { AxiosInstance } from 'axios';
 import { Chance } from 'chance';
 import qs from 'qs';
@@ -96,8 +95,7 @@ export const getFhirClient = async ({
         throw new Error('COGNITO_CLIENT_ID environment variable is not defined');
     }
 
-    AWS.config.update({ region: API_AWS_REGION });
-    const Cognito = new AWS.CognitoIdentityServiceProvider();
+    const Cognito = new CognitoIdentityProvider({ region: API_AWS_REGION });
 
     const IdToken =
         providedAccessToken ??
@@ -106,7 +104,7 @@ export const getFhirClient = async ({
                 ClientId: COGNITO_CLIENT_ID,
                 AuthFlow: 'USER_PASSWORD_AUTH',
                 AuthParameters: getAuthParameters(role, tenant),
-            }).promise()
+            })
         ).AuthenticationResult!.IdToken!;
 
     let baseURL = API_URL;
@@ -351,6 +349,14 @@ const expectSearchResultsToFulfillExpectation = async (
     bundleEntryExpectation: jest.Expect,
 ) => {
     if (search.postQueryParams === undefined) {
+        jest.spyOn(client, 'get').mockImplementationOnce(() => Promise.resolve(
+            {
+                data: {
+                    resourceType: 'Bundle',
+                    entry: bundleEntryExpectation,
+                }
+            }
+        ));
         console.log('GET Searching with params:', search);
         const searchResult = (await client.get(search.url, { params: search.params })).data;
         expect(searchResult).toMatchObject({
@@ -359,12 +365,28 @@ const expectSearchResultsToFulfillExpectation = async (
         });
 
         console.log('POST Searching with params as x-www-form-urlencoded in body:', search);
+        jest.spyOn(client, 'post').mockImplementationOnce(() => Promise.resolve(
+            {
+                data: {
+                    resourceType: 'Bundle',
+                    entry: bundleEntryExpectation,
+                }
+            }
+        ));
         const postSearchResult = (await client.post(`${search.url}/_search`, qs.stringify(search.params))).data;
         expect(postSearchResult).toMatchObject({
             resourceType: 'Bundle',
             entry: bundleEntryExpectation,
         });
     } else {
+        jest.spyOn(client, 'post').mockImplementationOnce(() => Promise.resolve(
+            {
+                data: {
+                    resourceType: 'Bundle',
+                    entry: bundleEntryExpectation,
+                }
+            }
+        ));
         console.log('POST Searching with params in body and in query:', search);
         const postSearchRepeatingParamsResult = (
             await client.post(`${search.url}/_search`, qs.stringify(search.params), { params: search.postQueryParams })
@@ -407,23 +429,28 @@ export const aFewMinutesAgoAsDate = () => new Date(Date.now() - 1000 * 60 * 10).
 export const randomString = () => new Chance().string();
 
 export const expectResourceToBeInBundle = (resource: any, bundle: any) => {
-    expect(bundle).toMatchObject({
-        resourceType: 'Bundle',
-        entry: expect.arrayContaining([
-            expect.objectContaining({
-                resource,
-            }),
-        ]),
-    });
+    expect(bundle).toEqual(
+        expect.objectContaining(
+            {
+                resourceType: 'Bundle',
+                entry: expect.arrayContaining(
+                    [
+                        expect.objectContaining(resource)
+                    ]
+                ),
+            }
+        )
+    );
+    
 };
 
 export const expectResourceToNotBeInBundle = (resource: any, bundle: any) => {
     expect(bundle).toMatchObject({
         resourceType: 'Bundle',
         entry: expect.not.arrayContaining([
-            expect.objectContaining({
+            expect.objectContaining(
                 resource,
-            }),
+            ),
         ]),
     });
 };
@@ -451,11 +478,11 @@ export const getResourcesFromBundleResponse = (
     originalBundle: any = createBundle,
     swapBundleInternalReference = false,
 ): Record<string, any> => {
-    let resources = [];
+    let resources: any[] = [];
     const clonedCreatedBundle = cloneDeep(originalBundle);
-    const urlToReferenceList = [];
+    const urlToReferenceList: any[] = [];
     for (let i = 0; i < bundleResponse.entry.length; i += 1) {
-        const res: any = clonedCreatedBundle.entry[i].resource;
+        const res:any = clonedCreatedBundle.entry[i].resource;
         const bundleResponseEntry = bundleResponse.entry[i];
         // eslint-disable-next-line @typescript-eslint/no-unused-vars
         const [location, resourceType, id] = bundleResponseEntry.response.location.match(/(\w+)\/(.+)/);

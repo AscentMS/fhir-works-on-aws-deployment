@@ -1,0 +1,6 @@
+{
+    "$schema": "file:///c%3A/Users/eddie/.vscode/extensions/orta.vscode-jest-6.2.5/syntaxes/ExtSettingsSchema.json",
+    "jest.runMode": {
+        "type": "on-demand"
+    }
+}

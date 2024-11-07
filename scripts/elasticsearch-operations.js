@@ -14,16 +14,6 @@ const { AmazonConnection, AmazonTransport } = require('aws-elasticsearch-connect
 
 const { Client } = require('@elastic/elasticsearch');
 
-const AWS = require('aws-sdk');
-
-const region = process.argv[2];
-
-AWS.config.update({
-    region,
-    accessKeyId: process.env.ACCESS_KEY,
-    secretAccessKey: process.env.SECRET_KEY,
-});
-
 const esDomainEndpoint = process.env.ES_DOMAIN_ENDPOINT;
 
 const es = new Client({

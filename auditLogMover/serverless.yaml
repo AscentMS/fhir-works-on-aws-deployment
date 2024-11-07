@@ -14,7 +14,7 @@ custom:
 
 provider:
   name: aws
-  runtime: nodejs14.x
+  runtime: nodejs20.x
   stage: dev
   region: us-west-2
   memorySize: 256

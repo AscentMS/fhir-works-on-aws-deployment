@@ -39,6 +39,10 @@ export default class Backup extends Stack {
                     scheduleExpression: Schedule.cron({
                         minute: '0',
                         hour: '5',
+                        day: '?',
+                        month: '*',
+                        weekDay: '*',
+                        year: '*',
                     }),
                 }),
             ],
@@ -53,8 +57,8 @@ export default class Backup extends Stack {
                         statements: [
                             new PolicyStatement({
                                 effect: Effect.ALLOW,
+                                principals: [new ServicePrincipal('backup.amazonaws.com')],
                                 actions: ['sts:AssumeRole'],
-                                resources: ['*'],
                             }),
                         ],
                     }),
