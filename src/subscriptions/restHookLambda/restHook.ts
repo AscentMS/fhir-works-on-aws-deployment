@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import axios from 'axios';
 import { makeLogger } from 'fhir-works-on-aws-interface';
 import { SQSEvent, SQSBatchResponse } from 'aws-lambda';

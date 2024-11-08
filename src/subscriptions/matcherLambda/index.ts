@@ -19,6 +19,7 @@ const streamSubscriptionMatcher = new StreamSubscriptionMatcher(dynamoDbDataServ
     compiledImplementationGuides: loadImplementationGuides('fhir-works-on-aws-search-es'),
 });
 
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 exports.handler = async (event: any) => {
     await streamSubscriptionMatcher.match(event);
 };

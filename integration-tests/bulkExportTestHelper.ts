@@ -1,10 +1,9 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 /*
  *  Copyright Amazon.com, Inc. or its affiliates. All Rights Reserved.
  *  SPDX-License-Identifier: Apache-2.0
  */
 
-/* eslint-disable class-methods-use-this */
-/* eslint-disable import/no-extraneous-dependencies */
 import axios, { AxiosInstance } from 'axios';
 import { cloneDeep, groupBy, mapValues } from 'lodash';
 import createBundle from './createPatientPractitionerEncounterBundle.json';
@@ -53,11 +52,11 @@ export default class BulkExportTestHelper {
                 _outputFormat: 'ndjson',
             };
             if (startExportJobParam.since) {
-                // eslint-disable-next-line no-underscore-dangle
+                 
                 params._since = startExportJobParam.since.toISOString();
             }
             if (startExportJobParam.type) {
-                // eslint-disable-next-line no-underscore-dangle
+                 
                 params._type = startExportJobParam.type;
             }
 
@@ -90,14 +89,14 @@ export default class BulkExportTestHelper {
         while (new Date().getTime() < cutOffTime.getTime()) {
             try {
                 console.log('Checking export status');
-                // eslint-disable-next-line no-await-in-loop
+                 
                 const response = await this.fhirUserAxios.get(statusPollUrl);
                 if (response.status === 200) {
                     if (expectedSubstring === '' || (expectedSubstring && response.data === expectedSubstring)) {
                         return response.data;
                     }
                 }
-                // eslint-disable-next-line no-await-in-loop
+                 
                 await this.sleep(5000);
             } catch (e) {
                 console.error('Failed to getExport status', e);
@@ -129,7 +128,7 @@ export default class BulkExportTestHelper {
             // Create group members with metadata
             const group = createGroupBundle.entry.filter((entry) => entry.resource.resourceType === 'Group')[0]
                 .resource;
-            // @ts-ignore
+            
             const member: GroupMember[] = group.member || [];
             group.member = member.map((entityObj) => ({
                 ...entityObj,
@@ -182,12 +181,12 @@ export default class BulkExportTestHelper {
 
         // Get all resources from exported files for each resourceType
         const resourceTypeToResourcesInExportedFiles: Record<string, any[]> = {};
-        // eslint-disable-next-line no-restricted-syntax
+         
         for (const [resourceType, urls] of Object.entries(resourceTypeToFileUrls)) {
             const fileDataPromises = urls.map((url) => {
                 return BulkExportTestHelper.downloadFile(url);
             });
-            // eslint-disable-next-line no-await-in-loop
+             
             resourceTypeToResourcesInExportedFiles[resourceType] = (await Promise.all(fileDataPromises)).flat();
         }
         return resourceTypeToResourcesInExportedFiles;

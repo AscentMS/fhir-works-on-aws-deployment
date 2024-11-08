@@ -1,3 +1,4 @@
+// eslint-disable-next-line @typescript-eslint/no-require-imports
 const { default: getSecrets } = require("./read-from-secrets-manager");
 
 // NB - running the tests requires you to have access to the Sandbox environment configured
@@ -18,6 +19,7 @@ module.exports = async function setup() {
 		process.env.API_KEY = secretValues.api_key;
 		process.env.API_AWS_REGION = 'eu-west-2';
 		process.env.COGNITO_CLIENT_ID = secretValues.cognito_client_id;
+		// eslint-disable-next-line @typescript-eslint/no-unused-expressions
 		process.env.COGNITO_USERNAME_PRACTITIONER = secretValues.cognito_username_practitioner,
 		process.env.COGNITO_USERNAME_AUDITOR = secretValues.cognito_username_auditor;
 		process.env.COGNITO_PASSWORD = secretValues.cognito_password;

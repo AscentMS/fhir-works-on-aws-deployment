@@ -7,7 +7,8 @@ export default tseslint.config(
             "auditLogMover/",
             "cdk.out/",
             "coverage/",
-            "dist/"
-        ]
+            "dist/",
+            "scripts/"
+        ],
     }
 );

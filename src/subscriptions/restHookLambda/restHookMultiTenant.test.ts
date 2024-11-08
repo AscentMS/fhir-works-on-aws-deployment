@@ -72,7 +72,7 @@ describe('Multi-tenant: Rest hook notification', () => {
 
     test('Empty POST notification is sent when channelPayload is null', async () => {
         await expect(
-            restHookHandler.sendRestHookNotification(getEvent({ channelPayload: null as any }), allowListPromise),
+            restHookHandler.sendRestHookNotification(getEvent({ channelPayload: null as never }), allowListPromise),
         ).resolves.toMatchInlineSnapshot(`
             {
               "batchItemFailures": [],
@@ -154,6 +154,7 @@ describe('Multi-tenant: Rest hook notification', () => {
     });
 
     test('Error thrown when tenantID is not passed in', async () => {
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         await expect(restHookHandler.sendRestHookNotification(getEvent({ tenantId: null as any }), allowListPromise))
             .resolves.toMatchInlineSnapshot(`
                     {

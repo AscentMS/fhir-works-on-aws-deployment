@@ -56,7 +56,7 @@ export const getAllowListHeaders = (
     const getHeaders = (allowListInfo: AllowListInfo): string[] => {
         if (allowListInfo) {
             const { allowList, headerMap } = allowListInfo;
-            // eslint-disable-next-line no-restricted-syntax
+             
             for (const allowedEndpoint of allowList) {
                 if (allowedEndpoint instanceof RegExp && allowedEndpoint.test(endpoint)) {
                     return headerMap[allowedEndpoint.toString()];

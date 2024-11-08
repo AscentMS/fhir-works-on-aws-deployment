@@ -13,7 +13,6 @@ export interface SubscriptionNotification {
     headers?: string[];
 }
 
-// eslint-disable-next-line import/prefer-default-export
 export class SubscriptionsHelper {
     private readonly notificationsTableName: string;
 

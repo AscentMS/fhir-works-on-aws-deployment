@@ -50,7 +50,7 @@ function createBatchWriteRequest(writeRequests) {
     let scanResult;
     console.log(`Starting scanning of old table: ${OLD_RESOURCE_TABLE}`);
     do {
-        // eslint-disable-next-line no-await-in-loop
+         
         scanResult = await DynamoDb.scan(scanParam).promise();
         if (scanResult.Items === undefined || scanResult.Items.length === 0) {
             console.error(`\nNo elements found in ${OLD_RESOURCE_TABLE}. You probably do not need to run this script`);

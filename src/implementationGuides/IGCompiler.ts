@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { existsSync, PathLike, readdir, readFile, writeFile, realpathSync, statSync } from 'fs';
 import util from 'util';
 import path from 'path';

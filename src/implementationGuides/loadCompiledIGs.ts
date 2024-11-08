@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 /*
  *  Copyright Amazon.com, Inc. or its affiliates. All Rights Reserved.
  *  SPDX-License-Identifier: Apache-2.0
@@ -14,7 +15,6 @@ export const COMPILED_IGS_DIRECTORY = 'compiledImplementationGuides';
  * @param moduleName
  * @param implementationGuidesPath - allows to override the path to the compiled Implementation Guides directory
  */
-// eslint-disable-next-line import/prefer-default-export
 export const loadImplementationGuides = (
     moduleName: string,
     implementationGuidesPath?: PathLike,

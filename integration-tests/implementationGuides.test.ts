@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 /*
  *  Copyright Amazon.com, Inc. or its affiliates. All Rights Reserved.
  *  SPDX-License-Identifier: Apache-2.0
@@ -139,7 +140,7 @@ describe('Implementation Guides - US Core', () => {
         const actualResourcesWithSupportedProfile: Record<string, string[]> =
             getResourcesWithSupportedProfile(actualCapabilityStatement);
 
-        // @ts-ignore
+        // @ts-expect-error - missing fields
         const expectedCapStatement: CapabilityStatement = STU311UsCoreCapStatement;
 
         const expectedResourcesWithSupportedProfile: Record<string, string[]> =
@@ -360,9 +361,9 @@ describe('Implementation Guides - US Core', () => {
         ];
 
         // run tests serially for easier debugging and to avoid throttling
-        // eslint-disable-next-line no-restricted-syntax
+         
         for (const testParams of testsParams) {
-            // eslint-disable-next-line no-await-in-loop
+             
             await expectResourceToBePartOfSearchResults(client, testParams, testPatient);
         }
     });
@@ -424,7 +425,7 @@ describe('Implementation Guides - US Core', () => {
                 }
             ));
 
-            // eslint-disable-next-line @typescript-eslint/no-unused-vars
+             
             latestCCDADocRef = (
                 await client.post('DocumentReference', {
                     ...basicDocumentReference(),
@@ -456,7 +457,7 @@ describe('Implementation Guides - US Core', () => {
                     }
                 }
             ));
-            // eslint-disable-next-line @typescript-eslint/no-unused-vars
+             
             oldCCDADocRef = (
                 await client.post('DocumentReference', {
                     ...basicDocumentReference(),

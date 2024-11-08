@@ -10,7 +10,7 @@ const dbService = new DynamoDbDataService(DynamoDb);
 /**
  * Custom lambda handler that handles deleting expired subscriptions.
  */
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
+// eslint-disable-next-line @typescript-eslint/no-unused-vars, @typescript-eslint/no-explicit-any
 exports.handler = async (event: any) => {
     return reaperHandler(dbService, dbServiceWithTenancy, enableMultitenancy);
 };

@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 /*
  *  Copyright Amazon.com, Inc. or its affiliates. All Rights Reserved.
  *  SPDX-License-Identifier: Apache-2.0
@@ -49,9 +50,9 @@ describe('search', () => {
         ];
 
         // run tests serially for easier debugging and to avoid throttling
-        // eslint-disable-next-line no-restricted-syntax
+         
         for (const testParams of testsParams) {
-            // eslint-disable-next-line no-await-in-loop
+             
             await expectResourceToBePartOfSearchResults(client, testParams, testPatient);
         }
     });
@@ -82,9 +83,9 @@ describe('search', () => {
         ];
 
         // run tests serially for easier debugging and to avoid throttling
-        // eslint-disable-next-line no-restricted-syntax
+         
         for (const testParams of testsParams) {
-            // eslint-disable-next-line no-await-in-loop
+             
             await expectResourceToBePartOfSearchResults(client, testParams, testPatient);
         }
 
@@ -101,9 +102,9 @@ describe('search', () => {
             }),
         ];
 
-        // eslint-disable-next-line no-restricted-syntax
+         
         for (const testParams of testsParamsThatDoNotMatch) {
-            // eslint-disable-next-line no-await-in-loop
+             
             await expectResourceToNotBePartOfSearchResults(client, testParams, testPatient);
         }
     });
@@ -122,9 +123,9 @@ describe('search', () => {
         ];
 
         // run tests serially for easier debugging and to avoid throttling
-        // eslint-disable-next-line no-restricted-syntax
+         
         for (const testParams of testsParams) {
-            // eslint-disable-next-line no-await-in-loop
+             
             await expect(client.get('Patient', testParams)).rejects.toMatchObject({
                 response: { status: 400 },
             });
@@ -161,9 +162,9 @@ describe('search', () => {
         ];
 
         // run tests serially for easier debugging and to avoid throttling
-        // eslint-disable-next-line no-restricted-syntax
+         
         for (const testParams of testsParams) {
-            // eslint-disable-next-line no-await-in-loop
+             
             await expectResourceToBePartOfSearchResults(client, testParams, testPatient);
         }
     });
@@ -192,9 +193,9 @@ describe('search', () => {
             p({ birthdate: 'ne1990-06' }),
         ];
 
-        // eslint-disable-next-line no-restricted-syntax
+         
         for (const testParams of testsParamsThatMatch) {
-            // eslint-disable-next-line no-await-in-loop
+             
             await expectResourceToBePartOfSearchResults(client, testParams, testPatient);
         }
 
@@ -211,9 +212,9 @@ describe('search', () => {
             p({ birthdate: 'eq1990-06' }),
         ];
 
-        // eslint-disable-next-line no-restricted-syntax
+         
         for (const testParams of testsParamsThatDoNotMatch) {
-            // eslint-disable-next-line no-await-in-loop
+             
             await expectResourceToNotBePartOfSearchResults(client, testParams, testPatient);
         }
     });
@@ -305,9 +306,9 @@ describe('search', () => {
             params: { _lastUpdated: `ge${aFewMinutesAgo}`, ...params },
         }));
 
-        // eslint-disable-next-line no-restricted-syntax
+         
         for (const testParams of testsParams) {
-            // eslint-disable-next-line no-await-in-loop
+             
             await expectResourceToBePartOfSearchResults(client, testParams, testdocumentReference);
         }
 
@@ -344,9 +345,9 @@ describe('search', () => {
             params: { _lastUpdated: `ge${aFewMinutesAgo}`, ...params },
         }));
 
-        // eslint-disable-next-line no-restricted-syntax
+         
         for (const testParams of testsParamsThatDoNotMatch) {
-            // eslint-disable-next-line no-await-in-loop
+             
             await expectResourceToNotBePartOfSearchResults(client, testParams, testdocumentReference);
         }
     });
@@ -389,9 +390,9 @@ describe('search', () => {
             p({ identifier: 'somepatient@fwoa-mail.com' }),
             p({ active: true }),
         ];
-        // eslint-disable-next-line no-restricted-syntax
+         
         for (const testParams of testsParamsThatMatch) {
-            // eslint-disable-next-line no-await-in-loop
+             
             await expectResourceToBePartOfSearchResults(client, testParams, testPatient);
         }
         await expectResourceToBePartOfSearchResults(
@@ -410,9 +411,9 @@ describe('search', () => {
             p({ active: false }),
         ];
 
-        // eslint-disable-next-line no-restricted-syntax
+         
         for (const testParams of testsParamsThatDoNotMatch) {
-            // eslint-disable-next-line no-await-in-loop
+             
             await expectResourceToNotBePartOfSearchResults(client, testParams, testPatient);
         }
     });
@@ -459,9 +460,9 @@ describe('search', () => {
             params: { _lastUpdated: `ge${aFewMinutesAgo}`, ...params },
         }));
 
-        // eslint-disable-next-line no-restricted-syntax
+         
         for (const testParams of testsParams) {
-            // eslint-disable-next-line no-await-in-loop
+             
             await expectResourceToBePartOfSearchResults(client, testParams, testObservation);
         }
     });
@@ -503,9 +504,9 @@ describe('search', () => {
             params: { _lastUpdated: `ge${aFewMinutesAgo}`, ...params },
         }));
 
-        // eslint-disable-next-line no-restricted-syntax
+         
         for (const testParams of testsParams) {
-            // eslint-disable-next-line no-await-in-loop
+             
             await expectResourceToBePartOfSearchResults(client, testParams, testChargeItem);
         }
     });

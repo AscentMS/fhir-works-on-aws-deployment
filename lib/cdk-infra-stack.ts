@@ -32,7 +32,7 @@ import {
     StarPrincipal,
 } from 'aws-cdk-lib/aws-iam';
 import { Alias } from 'aws-cdk-lib/aws-kms';
-import { Alias as LambdaAlias, Runtime, StartingPosition, Tracing } from 'aws-cdk-lib/aws-lambda';
+import { Runtime, StartingPosition, Tracing } from 'aws-cdk-lib/aws-lambda';
 import { DynamoEventSource, SqsEventSource } from 'aws-cdk-lib/aws-lambda-event-sources';
 import { Bucket, BucketAccessControl, BucketEncryption, ObjectOwnership } from 'aws-cdk-lib/aws-s3';
 import { Construct } from 'constructs';
@@ -138,7 +138,7 @@ export default class FhirWorksStack extends Stack {
 
         if (props!.useHapiValidator) {
             // deploy hapi validator stack
-            // eslint-disable-next-line no-new
+             
             this.javaHapiValidator = new JavaHapiValidator(this, 'javaHapiValidator', {
                 region: props!.region,
                 fhirVersion: props!.fhirVersion,
@@ -463,7 +463,7 @@ export default class FhirWorksStack extends Stack {
                 NUMBER_OF_SHARDS: `${isDev ? 1 : 3}`, // 133 indices, one per resource type
             },
         });
-        // eslint-disable-next-line no-new
+         
         new CustomResource(this, 'updateSearchMappingsCustomResource', {
             serviceToken: updateSearchMappingsLambdaFunction.functionArn,
             properties: {
@@ -486,11 +486,11 @@ export default class FhirWorksStack extends Stack {
         // This is not deployed by default, but can be added to cdk-infra.ts under /bin/ to do so,
         // pass enableBackup=true when running cdk deploy (e.g. cdk deploy -c enableBackup=true)
         if (props!.enableBackup) {
-            // eslint-disable-next-line no-new
+             
             new Backup(this, 'backup', { backupKMSKey: kmsResources.backupKMSKey });
         }
 
-        // eslint-disable-next-line no-new
+         
         new CustomResource(this, 'uploadGlueScriptsCustomResource', {
             serviceToken: uploadGlueScriptsLambdaFunction.functionArn,
             properties: {
@@ -913,7 +913,7 @@ export default class FhirWorksStack extends Stack {
             },
         ]);
 
-        // eslint-disable-next-line no-new
+         
         const subscriptionsMatcher = new NodejsFunction(this, 'subscriptionsMatcher', {
             timeout: Duration.seconds(20),
             memorySize: isDev ? 512 : 1024,
@@ -1016,7 +1016,7 @@ export default class FhirWorksStack extends Stack {
             );
         }
 
-        // eslint-disable-next-line no-new
+         
         new NodejsFunction(this, 'subscriptionsRestHook', {
             timeout: Duration.seconds(10),
             runtime: Runtime.NODEJS_20_X,
@@ -1040,7 +1040,7 @@ export default class FhirWorksStack extends Stack {
         });
 
         // Create alarms resources here:
-        // eslint-disable-next-line no-new
+         
         new AlarmsResource(
             this,
             props!.stage,
@@ -1055,49 +1055,49 @@ export default class FhirWorksStack extends Stack {
             isDev,
         );
         // create outputs for stack here:
-        // eslint-disable-next-line no-new
+         
         new CfnOutput(this, 'userPoolId', {
             description: 'User pool id for the provisioning users',
             value: `${cognitoResources.userPool.userPoolId}`,
             exportName: `UserPoolId-${props!.stage}`,
         });
-        // eslint-disable-next-line no-new
+         
         new CfnOutput(this, 'userPoolAppClientId', {
             description: 'App client id for the provisioning users.',
             value: `${cognitoResources.userPoolClient.ref}`,
             exportName: `UserPoolAppClientId-${props!.stage}`,
         });
-        // eslint-disable-next-line no-new
+         
         new CfnOutput(this, 'FHIRBinaryBucket', {
             description: 'S3 bucket for storing Binary objects',
             value: `${fhirBinaryBucket.bucketArn}`,
             exportName: `FHIRBinaryBucket-${props!.stage}`,
         });
-        // eslint-disable-next-line no-new
+         
         new CfnOutput(this, 'resourceDynamoDbTableArnOutput', {
             description: 'DynamoDB table for storing non-Binary resources',
             value: `${resourceDynamoDbTable.tableArn}`,
             exportName: `ResourceDynamoDbTableArn-${props!.stage}`,
         });
-        // eslint-disable-next-line no-new
+         
         new CfnOutput(this, 'resourceDynamoDbTableStreamArnOutput', {
             description: 'DynamoDB stream for the DDB table storing non-Binary resources',
             value: `${resourceDynamoDbTable.tableStreamArn}`,
             exportName: `ResourceDynamoDbTableStreamArn-${props!.stage}`,
         });
-        // eslint-disable-next-line no-new
+         
         new CfnOutput(this, 'exportRequestDynamoDbTableArnOutput', {
             description: 'DynamoDB table for storing bulk export requests',
             value: `${resourceDynamoDbTable.tableArn}`,
             exportName: `ExportRequestDynamoDbTableArnOutput-${props!.stage}`,
         });
-        // eslint-disable-next-line no-new
+         
         new CfnOutput(this, 'elasticsearchDomainEndpointOutput', {
             description: 'Endpoint of ElasticSearch instance',
             value: `${elasticSearchResources.elasticSearchDomain.domainEndpoint}`,
             exportName: `ElasticSearchDomainEndpoint-${props!.stage}`,
         });
-        // eslint-disable-next-line no-new
+         
         new CfnOutput(this, 'developerApiKeyOutput', {
             description: 'Key for developer access to the API',
             value: `${apiGatewayApiKey}`,
@@ -1105,21 +1105,21 @@ export default class FhirWorksStack extends Stack {
         });
 
         if (isDev) {
-            // eslint-disable-next-line no-new
+             
             new CfnOutput(this, 'elasticsearchDomainKibanaEndpointOutput', {
                 description: 'ElasticSearch Kibana endpoint',
                 value: `${elasticSearchResources.elasticSearchDomain.domainEndpoint}/_plugin/kibana`,
                 exportName: `ElasticSearchDomainKibanaEndpoint-${props!.stage}`,
                 condition: isDevCondition,
             });
-            // eslint-disable-next-line no-new
+             
             new CfnOutput(this, 'elasticsearchKibanaUserPoolIdOutput', {
                 description: 'User pool id for the provisioning ES Kibana users.',
                 value: `${elasticSearchResources.kibanaUserPool!.ref}`,
                 exportName: `ElasticSearchKibanaUserPoolId-${props!.stage}`,
                 condition: isDevCondition,
             });
-            // eslint-disable-next-line no-new
+             
             new CfnOutput(this, 'elasticsearchKibanaUserPoolAppClientIdOutput', {
                 description: 'App client id for the provisioning ES Kibana users.',
                 value: `${elasticSearchResources.kibanaUserPoolClient!.ref}`,

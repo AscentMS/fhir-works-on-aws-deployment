@@ -97,6 +97,7 @@ export interface Resource {
     searchInclude?: string[];
     searchRevInclude?: string[];
     supportedProfile?: string[];
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     operation?: any;
 }
 

@@ -9,6 +9,7 @@ import { ImplementationGuides } from 'fhir-works-on-aws-interface';
 import { IGCompiler, IGCompilerOptions, loadJson, storeJson } from './IGCompiler';
 
 class MockImplementationGuides implements ImplementationGuides {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     compile(input: any[]): Promise<any> {
         return Promise.resolve({
             input,

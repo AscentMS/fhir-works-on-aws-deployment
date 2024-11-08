@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import axios from 'axios';
 import RestHookHandler from './restHook';
 import { AllowListInfo, getAllowListInfo } from './allowListUtil';

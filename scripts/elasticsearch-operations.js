@@ -38,7 +38,7 @@ const search = async name => {
         console.log(`Response time: ${response.body.took}`);
         console.log(`Number of hits: ${response.body.hits.total.value}`);
         response.body.hits.hits.forEach(hit => {
-            // eslint-disable-next-line no-underscore-dangle
+             
             console.log(JSON.stringify(hit._source, null, 2));
         });
     } catch (error) {

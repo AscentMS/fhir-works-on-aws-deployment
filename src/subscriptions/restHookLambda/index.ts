@@ -15,6 +15,7 @@ const allowListPromise: Promise<{ [key: string]: AllowListInfo }> = getAllowList
 
 const restHookHandler = new RestHookHandler({ enableMultitenancy });
 
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 exports.handler = async (event: any) => {
     return restHookHandler.sendRestHookNotification(event, allowListPromise);
 };

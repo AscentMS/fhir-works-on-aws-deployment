@@ -5,6 +5,7 @@
 
 import { handleDdbToEsEvent } from 'fhir-works-on-aws-persistence-ddb';
 
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 exports.handler = async (event: any) => {
     await handleDdbToEsEvent(event);
 };

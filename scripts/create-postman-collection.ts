@@ -20,12 +20,12 @@ import path from 'path';
 const updateRequests = (item: any, auth: any, resourceName: string, examplesDir: string) => {
     if (item.request) {
         // add the auth
-        /* eslint-disable no-param-reassign */
+         
         item.request.auth = _.cloneDeep(auth);
 
         // add the x-api-key header
         if (!item.request.header) {
-            /* eslint-disable no-param-reassign */
+             
             item.request.header = [];
         }
         item.request.header.push({
@@ -35,9 +35,9 @@ const updateRequests = (item: any, auth: any, resourceName: string, examplesDir:
         });
 
         // update to {{API_URL}} from {{baseUrl}}
-        /* eslint-disable no-param-reassign */
+         
         item.request.url.raw = item.request.url.raw.replace('{{baseUrl}}', '{{API_URL}}');
-        /* eslint-disable no-param-reassign */
+         
         item.request.url.host = ['{{API_URL}}'];
 
         // add the example json as the body if we have it
@@ -46,7 +46,7 @@ const updateRequests = (item: any, auth: any, resourceName: string, examplesDir:
             // to get through, I renamed some files manually
             const exampleFilePath = path.join(examplesDir, `${resourceName}-example.json`);
             if (fs.existsSync(exampleFilePath)) {
-                /* eslint-disable no-param-reassign */
+                 
                 item.request.body.raw = fs.readFileSync(exampleFilePath, 'utf-8');
             } else {
                 console.log(`no file found for ${resourceName} - ${exampleFilePath}`);

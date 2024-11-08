@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { AxiosInstance } from 'axios';
 import { getFhirClient } from './utils';
 

@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-require-imports */
 /*
 This scripts generates the two patientCompartmentSearchParams JSON files from compartment definition files and save them at bulkExport/schema.
 

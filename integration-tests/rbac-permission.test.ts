@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { getFhirClient, randomPatient } from './utils';
 
 jest.setTimeout(60 * 1000);

@@ -17,6 +17,7 @@ const reaperHandler = async (
     // example format of subscriptions: https://www.hl7.org/fhir/subscription-example.json.html
     return Promise.all(
         subscriptions
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
             .filter((s: Record<string, any>) => {
                 if (!s.end) {
                     return false;
@@ -31,13 +32,13 @@ const reaperHandler = async (
             .map(async (subscription) => {
                 // delete the subscription as it has reached its end time
                 // multi-tenant deployments have the .id as {tenantid}|{id}
-                // eslint-disable-next-line no-underscore-dangle
+                 
                 const id = multiTenancyEnabled ? subscription._id : subscription.id;
                 return dbServiceWithTenancy.deleteResource({
                     resourceType: subscription.resourceType,
                     id,
                     // _tenantId is an internal field, and getActiveSubscriptions returns the raw Record<string, any>
-                    // eslint-disable-next-line no-underscore-dangle
+                     
                     tenantId: subscription._tenantId,
                 });
             }),
