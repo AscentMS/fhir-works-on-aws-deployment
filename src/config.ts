@@ -10,19 +10,19 @@ import {
     BASE_R4_RESOURCES,
     BASE_STU3_RESOURCES,
     Validator,
-} from 'fhir-works-on-aws-interface';
-import { ElasticSearchService } from 'fhir-works-on-aws-search-es';
-import { RBACHandler } from 'fhir-works-on-aws-authz-rbac';
+} from '@ascentms/fhir-works-on-aws-interface';
+import { ElasticSearchService } from '@ascentms/fhir-works-on-aws-search-es';
+import { RBACHandler } from '@ascentms/fhir-works-on-aws-authz-rbac';
 import {
     DynamoDb,
     DynamoDbDataService,
     DynamoDbBundleService,
     S3DataService,
     DynamoDbUtil,
-} from 'fhir-works-on-aws-persistence-ddb';
-import JsonSchemaValidator from 'fhir-works-on-aws-routing/lib/router/validation/jsonSchemaValidator';
-import HapiFhirLambdaValidator from 'fhir-works-on-aws-routing/lib/router/validation/hapiFhirLambdaValidator';
-import SubscriptionValidator from 'fhir-works-on-aws-routing/lib/router/validation/subscriptionValidator';
+} from '@ascentms/fhir-works-on-aws-persistence-ddb';
+import JsonSchemaValidator from '@ascentms/fhir-works-on-aws-routing/lib/router/validation/jsonSchemaValidator';
+import HapiFhirLambdaValidator from '@ascentms/fhir-works-on-aws-routing/lib/router/validation/hapiFhirLambdaValidator';
+import SubscriptionValidator from '@ascentms/fhir-works-on-aws-routing/lib/router/validation/subscriptionValidator';
 import getAllowListedSubscriptionEndpoints from './subscriptions/allowList';
 import RBACRules from './RBACRules';
 import { loadImplementationGuides } from './implementationGuides/loadCompiledIGs';
@@ -68,7 +68,7 @@ const esSearch = new ElasticSearchService(
     ],
     DynamoDbUtil.cleanItem,
     fhirVersion,
-    loadImplementationGuides('fhir-works-on-aws-search-es'),
+    loadImplementationGuides('@ascentms/fhir-works-on-aws-search-es'),
     undefined,
     { enableMultiTenancy },
 );
@@ -117,7 +117,7 @@ export const getFhirConfig = async (): Promise<FhirConfig> => {
         profile: {
             systemOperations: ['transaction'],
             bundle: dynamoDbBundleService,
-            compiledImplementationGuides: loadImplementationGuides('fhir-works-on-aws-routing'),
+            compiledImplementationGuides: loadImplementationGuides('@ascentms/fhir-works-on-aws-routing'),
             systemHistory: stubs.history,
             systemSearch: stubs.search,
             bulkDataAccess: dynamoDbDataService,

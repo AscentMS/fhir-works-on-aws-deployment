@@ -3,7 +3,7 @@
  *  SPDX-License-Identifier: Apache-2.0
  */
 
-import { handleDdbToEsEvent } from 'fhir-works-on-aws-persistence-ddb';
+import { handleDdbToEsEvent } from '@ascentms/fhir-works-on-aws-persistence-ddb';
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 exports.handler = async (event: any) => {

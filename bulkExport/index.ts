@@ -8,7 +8,7 @@ import {
     stopExportJobHandler,
     getJobStatusHandler,
     updateStatusStatusHandler,
-} from 'fhir-works-on-aws-persistence-ddb';
+} from '@ascentms/fhir-works-on-aws-persistence-ddb';
 
 exports.startExportJobHandler = startExportJobHandler;
 exports.stopExportJobHandler = stopExportJobHandler;

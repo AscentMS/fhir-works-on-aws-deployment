@@ -1,8 +1,8 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import axios from 'axios';
-import { makeLogger } from 'fhir-works-on-aws-interface';
+import { makeLogger } from '@ascentms/fhir-works-on-aws-interface';
 import { SQSEvent, SQSBatchResponse } from 'aws-lambda';
-import { SubscriptionNotification } from 'fhir-works-on-aws-search-es';
+import { SubscriptionNotification } from '@ascentms/fhir-works-on-aws-search-es';
 import { metricScope, Unit } from 'aws-embedded-metrics';
 import https from 'https';
 import pSettle from 'p-settle';

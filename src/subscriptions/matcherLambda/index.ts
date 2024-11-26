@@ -4,9 +4,9 @@
  *
  */
 
-import { StreamSubscriptionMatcher } from 'fhir-works-on-aws-search-es';
+import { StreamSubscriptionMatcher } from '@ascentms/fhir-works-on-aws-search-es';
 
-import { DynamoDb, DynamoDbDataService } from 'fhir-works-on-aws-persistence-ddb';
+import { DynamoDb, DynamoDbDataService } from '@ascentms/fhir-works-on-aws-persistence-ddb';
 import { fhirVersion } from '../../config';
 import { loadImplementationGuides } from '../../implementationGuides/loadCompiledIGs';
 
@@ -16,7 +16,7 @@ const topicArn = process.env.SUBSCRIPTIONS_TOPIC as string;
 
 const streamSubscriptionMatcher = new StreamSubscriptionMatcher(dynamoDbDataService, topicArn, {
     fhirVersion,
-    compiledImplementationGuides: loadImplementationGuides('fhir-works-on-aws-search-es'),
+    compiledImplementationGuides: loadImplementationGuides('@ascentms/fhir-works-on-aws-search-es'),
 });
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any

@@ -5,7 +5,7 @@
  */
 
 import serverless from 'serverless-http';
-import { generateServerlessRouter } from 'fhir-works-on-aws-routing';
+import { generateServerlessRouter } from '@ascentms/fhir-works-on-aws-routing';
 import { getFhirConfig, genericResources } from './config';
 
 export const ensureAsyncInit = async (initPromise: Promise<any>): Promise<void> => {

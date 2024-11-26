@@ -1,5 +1,5 @@
 {
-  "name": "fhir-works-on-aws-deployment",
+  "name": "ascentms-fhir-works-on-aws-deployment",
   "version": "5.0.0",
   "description": "FHIR Works on AWS deployment",
   "stackname": "fhir-works-on-aws-deployment",
@@ -56,8 +56,8 @@
     "@types/node": "^22.8.5",
     "@types/sinon": "^17.0.3",
     "@types/uuid": "^8.3.4",
-    "aws-cdk": "^2.165.0",
-    "aws-cdk-lib": "^2.165.0",
+    "aws-cdk": "^2.171.0",
+    "aws-cdk-lib": "^2.171.0",
     "aws-sdk-client-mock": "^4.1.0",
     "aws-sdk-client-mock-jest": "^4.1.0",
     "chance": "^1.1.7",
@@ -67,7 +67,6 @@
     "eslint-plugin-import": "^2.31.0",
     "eslint-plugin-prettier": "^5.2.1",
     "jest": "^29.7.0",
-    "jest-circus": "^29.7.0",
     "jest-mock-extended": "^4.0.0-beta1",
     "jsonwebtoken": "^9.0.2",
     "prettier": "^3.3.3",
@@ -85,16 +84,16 @@
     "wait-for-expect": "^3.0.2"
   },
   "dependencies": {
+    "@ascentms/fhir-works-on-aws-authz-rbac": "^6.0.1",
+    "@ascentms/fhir-works-on-aws-interface": "^12.1.1",
+    "@ascentms/fhir-works-on-aws-persistence-ddb": "^4.0.0",
+    "@ascentms/fhir-works-on-aws-routing": "^7.0.0",
+    "@ascentms/fhir-works-on-aws-search-es": "^4.0.0",
     "@types/aws-lambda": "^8.10.92",
     "aws-embedded-metrics": "^2.0.4",
     "axios": "^1.7.7",
     "cdk-nag": "^2.14.14",
     "constructs": "^10.0.0",
-    "fhir-works-on-aws-authz-rbac": "^5.0.0",
-    "fhir-works-on-aws-interface": "12.1.0",
-    "fhir-works-on-aws-persistence-ddb": "3.11.0",
-    "fhir-works-on-aws-routing": "6.5.0",
-    "fhir-works-on-aws-search-es": "3.12.0",
     "fs-extra": "^10.1.0",
     "lodash": "^4.17.21",
     "p-settle": "^4.1.1",
@@ -139,7 +138,6 @@
       "\\.(ts)$": "ts-jest"
     },
     "testEnvironment": "node",
-    "testRunner": "jest-circus/runner",
     "testRegex": ".test.ts",
     "testPathIgnorePatterns": [
       "<rootDir>/node_modules/"

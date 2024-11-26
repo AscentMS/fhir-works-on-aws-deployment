@@ -5,7 +5,7 @@
  *
  */
 
-import { getSearchMappings, SearchMappingsManager } from 'fhir-works-on-aws-search-es';
+import { getSearchMappings, SearchMappingsManager } from '@ascentms/fhir-works-on-aws-search-es';
 import axios from 'axios';
 import { fhirVersion } from '../src/config';
 
